@@ -1,0 +1,4 @@
+# CPU-only torch for inference in the app image. The index URL is what keeps
+# the CUDA wheels and nvidia-* packages out.
+--index-url https://download.pytorch.org/whl/cpu
+torch==2.11.0

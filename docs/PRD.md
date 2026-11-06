@@ -173,7 +173,7 @@ The synthetic sensor model is unprocessing (Brooks et al., 2019). It uses random
 | Judge uploads odd input (huge, grayscale, CMYK, corrupt, X-Trans) | `InputError` with a friendly message; tested in `tests/test_io.py` |
 
 ## 12. Ethics and limitations (expanded in the design doc)
-* Datasets are public research benchmarks; no faces or personal data are collected. Uploaded images are processed in memory and not stored.
+* Datasets are public research benchmarks; no faces or personal data are collected. Uploaded images are deleted once read and are not kept.
 * Synthetic RAW does not capture every real-sensor effect (fixed-pattern noise, lens shading, crosstalk). We report real-RAW results separately and do not over-claim.
 * Colour "accuracy" is measured against a reference rendering, which is itself an aesthetic choice.
 

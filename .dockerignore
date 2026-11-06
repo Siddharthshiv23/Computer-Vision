@@ -1,0 +1,16 @@
+# Allow-list: nothing enters the build context unless it is named here,
+# so secrets, datasets and checkpoints cannot leak into the image.
+*
+!app/
+!isp/
+!weights/
+!requirements.txt
+!requirements-torch-cpu.txt
+
+**/__pycache__
+**/*.pyc
+**/*.pt
+**/*.pth
+**/.env
+**/.env.*
+**/*.token
