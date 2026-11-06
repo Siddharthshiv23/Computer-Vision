@@ -31,6 +31,8 @@ class ClassicalConfig:
     s_curve: float = 0.25
     clahe_clip: float = 0.0           # 0 disables CLAHE
     sharpen: float = 0.6
+    ccm: bool = True                  # False skips the colour matrix (ablation: camera RGB goes on unchanged)
+    fast_stats: bool = False          # estimate noise and AWB from ~64k samples instead of every pixel (latency)
 
 
 def _gray3(x: np.ndarray) -> np.ndarray:
@@ -38,7 +40,31 @@ def _gray3(x: np.ndarray) -> np.ndarray:
     return np.repeat(srgb_encode(x)[..., None], 3, axis=2)
 
 
-def _estimate_gains(rgb: np.ndarray, raw: RawImage, mode: str) -> np.ndarray:
+_STAT_PIXELS = 65536  # statistics (not pixels) need only this many samples; error is below sampling noise
+
+
+def _stat_stride(h: int, w: int, fast: bool) -> int:
+    """Subsampling stride for illuminant statistics. Legacy value is 2; fast mode aims at ~64k samples."""
+    return max(1, int(np.ceil(np.sqrt(h * w / _STAT_PIXELS)))) if fast else 2
+
+
+def _noise_view(bayer: np.ndarray, patch: int = 192, grid: int = 3) -> np.ndarray:
+    """A grid x grid set of even-aligned patches glued into one mosaic, for noise estimation.
+
+    Why: the (a, b) fit uses robust medians, so ~330k well-spread pixels give the same answer
+    as a full 12 MP frame, at a fraction of the cost. Patches are spread over the image so one
+    flat or textured region cannot decide the estimate. Frames that are already small are kept whole.
+    """
+    h, w = bayer.shape
+    if h * w <= (grid * patch) ** 2:
+        return bayer
+    p = min(patch, h // grid, w // grid) // 2 * 2
+    ys = [int((h - p) * (i + 0.5) / grid) // 2 * 2 for i in range(grid)]
+    xs = [int((w - p) * (j + 0.5) / grid) // 2 * 2 for j in range(grid)]
+    return np.concatenate([np.concatenate([bayer[y:y + p, x:x + p] for x in xs], 1) for y in ys], 0)
+
+
+def _estimate_gains(rgb: np.ndarray, raw: RawImage, mode: str, stride: int = 2) -> np.ndarray:
     if mode == "metadata" and raw.wb_gains is not None:
         g = np.asarray(raw.wb_gains, np.float32)
         return g / max(float(g[1]), 1e-6)
@@ -46,7 +72,7 @@ def _estimate_gains(rgb: np.ndarray, raw: RawImage, mode: str) -> np.ndarray:
         mode = "fusion"
     if mode not in _AWB:
         raise InputError(f"Unknown white balance mode '{mode}'.")
-    return _AWB[mode](rgb[::2, ::2])  # illuminant statistics do not need every pixel
+    return _AWB[mode](rgb[::stride, ::stride])  # illuminant statistics do not need every pixel
 
 
 def _validate(raw: RawImage) -> np.ndarray:
@@ -67,7 +93,7 @@ def _front_end(raw: RawImage, denoise: bool, cfg: ClassicalConfig, timings: dict
 
     bayer = _validate(raw)
     stages["raw"] = _gray3(bayer)
-    a, b = estimate_noise(bayer)
+    a, b = estimate_noise(_noise_view(bayer) if cfg.fast_stats else bayer)
     lap("noise_estimation")
     if denoise:
         bayer = denoise_raw(bayer, a, b, cfg.denoise_strength)
@@ -76,10 +102,11 @@ def _front_end(raw: RawImage, denoise: bool, cfg: ClassicalConfig, timings: dict
     lin = demosaic(bayer, cfg.demosaic)
     stages["demosaic"] = srgb_encode(lin)
     lap("demosaic")
-    lin = wb.apply_gains(lin, _estimate_gains(lin, raw, cfg.awb))
+    lin = wb.apply_gains(lin, _estimate_gains(lin, raw, cfg.awb, _stat_stride(*lin.shape[:2], cfg.fast_stats)))
     stages["white_balance"] = srgb_encode(lin)
     lap("white_balance")
-    lin = apply_ccm(lin, resolve_ccm(raw.ccm))
+    if cfg.ccm:
+        lin = apply_ccm(lin, resolve_ccm(raw.ccm))
     stages["ccm"] = srgb_encode(lin)
     lap("ccm")
     lin, gain = auto_exposure(lin)
@@ -95,13 +122,15 @@ def _front_end(raw: RawImage, denoise: bool, cfg: ClassicalConfig, timings: dict
     return out, stages, {"noise_a": a, "noise_b": b, "exposure": gain}
 
 
-def front_end(raw: RawImage, denoise: bool, config: ClassicalConfig | None = None):
+def front_end(raw: RawImage, denoise: bool, config: ClassicalConfig | None = None,
+              timings: dict[str, float] | None = None):
     """Classical front end used by the hybrid: normalised RAW -> sRGB for the network.
 
     Returns (rgb, stages, {"noise_a", "noise_b", "exposure"}). `denoise` turns the RAW-domain
-    denoiser on (classical mode) or off (hybrid mode, where the network denoises).
+    denoiser on (classical mode) or off (hybrid mode, where the network denoises). If `timings`
+    is given it is filled with per-stage milliseconds.
     """
-    return _front_end(raw, denoise, config or ClassicalConfig(), {})
+    return _front_end(raw, denoise, config or ClassicalConfig(), {} if timings is None else timings)
 
 
 def output_sigma(noise_a: float, noise_b: float, exposure: float) -> float:

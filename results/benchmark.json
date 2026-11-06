@@ -1,0 +1,106 @@
+{
+  "threads": 2,
+  "weights": "untrained",
+  "target_ms": 1500.0,
+  "created": "2026-11-06 19:15:08",
+  "host": {
+    "platform": "Windows-10-10.0.26200-SP0",
+    "cpu_count": 16,
+    "python": "3.11.15"
+  },
+  "note": "Latency is host-dependent; threads are limited, the CPU is not a 2 vCPU part.",
+  "variants": {
+    "fp32_onnx": {
+      "latency_ms": {
+        "512": {
+          "width": 512,
+          "height": 512,
+          "runs": 5,
+          "tiles": 1,
+          "fallback": false,
+          "total": 566.7048001196235,
+          "front_end": 297.1506000030786,
+          "input_prep": 33.53859996423125,
+          "network": 209.49419983662665,
+          "sharpen": 20.60139994136989
+        },
+        "1mp": {
+          "width": 1000,
+          "height": 1000,
+          "runs": 5,
+          "tiles": 1,
+          "fallback": false,
+          "total": 1845.703300088644,
+          "front_end": 886.6193001158535,
+          "input_prep": 123.42339986935258,
+          "network": 738.185300026089,
+          "sharpen": 83.5929000750184
+        },
+        "12mp": {
+          "width": 4000,
+          "height": 3000,
+          "runs": 5,
+          "tiles": 20,
+          "fallback": false,
+          "total": 23913.106200052425,
+          "front_end": 7086.302099982277,
+          "input_prep": 1023.5871002078056,
+          "network": 14727.906999876723,
+          "sharpen": 990.5182998627424
+        }
+      },
+      "peak_rss_mb": 4193.609375,
+      "weights": "untrained",
+      "params": 128159,
+      "size_mb": 0.5049886703491211,
+      "backend": "student_fp32.onnx",
+      "meets_1mp_target": false
+    },
+    "int8_onnx": {
+      "latency_ms": {
+        "512": {
+          "width": 512,
+          "height": 512,
+          "runs": 5,
+          "tiles": 1,
+          "fallback": false,
+          "total": 367.59499995969236,
+          "front_end": 223.89279981143773,
+          "input_prep": 20.77599987387657,
+          "network": 107.27949999272823,
+          "sharpen": 14.648699900135398
+        },
+        "1mp": {
+          "width": 1000,
+          "height": 1000,
+          "runs": 5,
+          "tiles": 1,
+          "fallback": false,
+          "total": 1149.5801999699324,
+          "front_end": 591.2447001319379,
+          "input_prep": 77.39880005829036,
+          "network": 420.26639985851943,
+          "sharpen": 54.08320017158985
+        },
+        "12mp": {
+          "width": 4000,
+          "height": 3000,
+          "runs": 5,
+          "tiles": 20,
+          "fallback": false,
+          "total": 17611.468499992043,
+          "front_end": 6789.170000003651,
+          "input_prep": 1003.4658999647945,
+          "network": 9006.510599981993,
+          "sharpen": 711.7807001341134
+        }
+      },
+      "peak_rss_mb": 4313.6171875,
+      "weights": "untrained",
+      "params": 128159,
+      "size_mb": 0.20737743377685547,
+      "backend": "student_int8.onnx",
+      "meets_1mp_target": true
+    }
+  }
+}

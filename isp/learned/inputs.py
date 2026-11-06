@@ -4,9 +4,23 @@ from __future__ import annotations
 import numpy as np
 import torch
 
-from isp.types import RawImage
+from isp.types import InputError, RawImage
 
 _MAD_TO_SIGMA = 1.4826
+
+
+def validated_bayer(raw: RawImage) -> np.ndarray:
+    """The mosaic as float32 in [0, 1], or InputError.
+
+    Why raise instead of repair: NaN or odd sizes mean the upstream loader is broken, and
+    silently turning them into a black image would hide that from the user.
+    """
+    b = np.asarray(raw.bayer)
+    if b.ndim != 2 or b.shape[0] % 2 or b.shape[1] % 2 or min(b.shape) < 2:
+        raise InputError("RAW data must be a single-channel Bayer mosaic with even width and height.")
+    if not np.isfinite(b).all():
+        raise InputError("RAW data contains NaN or infinite values; every pixel must be finite.")
+    return np.clip(b, 0.0, 1.0).astype(np.float32)
 
 
 def pack_bayer(bayer: np.ndarray) -> np.ndarray:
@@ -23,8 +37,9 @@ def estimate_bayer_sigma(bayer: np.ndarray) -> float:
 
 def rawnet_input(raw: RawImage) -> torch.Tensor:
     """(5, H/2, W/2): packed Bayer + constant noise sigma channel."""
-    packed = pack_bayer(raw.bayer.astype(np.float32))
-    sigma = np.full((1, *packed.shape[1:]), estimate_bayer_sigma(raw.bayer), np.float32)
+    bayer = validated_bayer(raw)
+    packed = pack_bayer(bayer)
+    sigma = np.full((1, *packed.shape[1:]), estimate_bayer_sigma(bayer), np.float32)
     return torch.from_numpy(np.concatenate([packed, sigma]).astype(np.float32))
 
 
