@@ -42,7 +42,7 @@ class HybridISP:
         head = self.toggles.get("colour_head", True)
         self.student = Backend(backend, threads, head)
         self.teacher = Backend(teacher, threads, head) if teacher else None
-        base = ClassicalConfig(awb=self.toggles.get("awb", "fusion"), ccm=self.toggles.get("ccm", True))
+        base = ClassicalConfig(awb=self.toggles.get("awb", "metadata"), ccm=self.toggles.get("ccm", True))
         # fast_stats: noise and AWB statistics from ~64k samples; measured error is below sampling noise
         self._fe_cfg = replace(base, fast_stats=True)
         self._classical_cfg = base
