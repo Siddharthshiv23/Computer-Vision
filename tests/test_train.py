@@ -99,3 +99,9 @@ def test_smoke_on_default_device(tmp_path):
     """Uses CUDA when available (device=auto) with AMP."""
     run(tmp_path, "--device", "auto", "--max-steps", "2", name="smoke")
     assert (tmp_path / "smoke" / "best.pt").exists()
+
+
+def test_default_front_end_is_the_real_classical_function():
+    """The fakes above cannot catch a wrong name, so resolve the real one when W1's code is present."""
+    pytest.importorskip("isp.classical.pipeline")
+    assert callable(train.default_front_end())

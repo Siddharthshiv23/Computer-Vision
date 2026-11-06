@@ -28,9 +28,15 @@ def rawnet_input(raw: RawImage) -> torch.Tensor:
     return torch.from_numpy(np.concatenate([packed, sigma]).astype(np.float32))
 
 
-def liteisp_input(rgb: np.ndarray, noise_a: float, noise_b: float) -> torch.Tensor:
-    """(4, H, W): classical sRGB + sigma map sqrt(a*lin + b), lin ~ rgb**2.2 (approximate linearisation)."""
+def liteisp_input(rgb: np.ndarray, noise_a: float, noise_b: float, exposure: float = 1.0) -> torch.Tensor:
+    """(4, H, W): classical sRGB + sigma map, lin ~ rgb**2.2 (approximate linearisation).
+
+    noise_a and noise_b describe the RAW signal, before the front end's exposure gain g. The image
+    here is after that gain, so sigma = g * sqrt(a * lin / g + b). Dropping g would understate noise
+    most on dark frames, which is where the network needs the map.
+    """
+    gain = max(float(exposure), 1e-6)
     lin = np.clip(rgb, 0.0, 1.0) ** 2.2
-    sigma = np.sqrt(np.maximum(noise_a * lin.mean(axis=2) + noise_b, 0.0))
+    sigma = gain * np.sqrt(np.maximum(noise_a * lin.mean(axis=2) / gain + noise_b, 0.0))
     x = np.concatenate([rgb.transpose(2, 0, 1), sigma[None]]).astype(np.float32)
     return torch.from_numpy(np.ascontiguousarray(x))

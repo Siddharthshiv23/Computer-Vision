@@ -33,3 +33,11 @@ def test_liteisp_input_shape_and_nonneg_sigma():
     x = liteisp_input(rgb, noise_a=0.01, noise_b=1e-4)
     assert x.shape == (4, 10, 12)
     assert (x[3] >= 0).all() and torch.allclose(x[:3], torch.from_numpy(rgb).permute(2, 0, 1))
+
+
+def test_liteisp_sigma_grows_with_exposure_gain():
+    """Gain amplifies noise, so a dark frame pushed 8x must report more noise than one left at 1x."""
+    rgb = np.full((8, 8, 3), 0.5, np.float32)
+    base = liteisp_input(rgb, 0.01, 1e-4, exposure=1.0)[3].mean()
+    gained = liteisp_input(rgb, 0.01, 1e-4, exposure=8.0)[3].mean()
+    assert gained > 2 * base

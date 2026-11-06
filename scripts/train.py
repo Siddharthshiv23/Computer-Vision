@@ -72,9 +72,9 @@ def default_dataset_factory(split: str, crop: int, seed: int):
 
 
 def default_front_end():
-    from isp.classical.pipeline import ClassicalISP  # W1 contract; only liteisp needs it
+    from isp.classical.pipeline import front_end  # W1 contract; only liteisp needs it
 
-    return ClassicalISP().front_end
+    return front_end
 
 
 def collate(batch, model_name: str, front_end):
@@ -84,7 +84,7 @@ def collate(batch, model_name: str, front_end):
             xs.append(rawnet_input(raw))
         else:
             rgb, _, info = front_end(raw, False)
-            xs.append(liteisp_input(rgb, info["noise_a"], info["noise_b"]))
+            xs.append(liteisp_input(rgb, info["noise_a"], info["noise_b"], info["exposure"]))
         ys.append(torch.as_tensor(np.asarray(target, dtype=np.float32)).permute(2, 0, 1))
     return torch.stack(xs), torch.stack(ys)
 
