@@ -19,7 +19,7 @@
 - Report measured numbers only. Never hard-code, stub or estimate a result. Missed targets are reported as missed.
 - All bad input raises `isp.types.InputError` with a friendly message.
 - No secrets in the repo; the repo is public. `data/`, `runs/`, `*.pt` stay untracked. Final ONNX models go in `weights/`.
-- Team ID stays `T??` and owners stay TBD until the user supplies them.
+- Team ID stays `TXX` and owners stay TBD until the user supplies them. Never put `?` in a filename: Windows rejects it.
 - Use the shared venv: `C:\Users\ddart\cv-hackathon\.venv\Scripts\python.exe`. Only W3 and W4 use the GPU.
 
 ## Review Focus
@@ -42,14 +42,14 @@
 | W1 | `isp/classical/sharpen.py` | `noise_aware_unsharp(rgb, sigma, amount) -> np.ndarray` |
 | W3 | `isp/models/liteisp.py` | `LiteISPNet(width, in_ch=4)`: `(B,4,H,W)` sRGB + sigma map to `(B,3,H,W)` |
 | W3 | `isp/models/rawnet.py` | `RawNet(width)`: `(B,5,H/2,W/2)` packed Bayer + sigma to `(B,3,H,W)` |
-| W3 | `isp/learned/pipeline.py` | `LearnedISP(ckpt)` with `name="learned"` |
+| W3 | `isp/learned/pipeline.py` | `LearnedISP(ckpt)` with `name="learned"`; ckpt is a `.pt` or `.onnx` path, and deployment uses the `.onnx` in `weights/` |
 | W3 | `scripts/train.py` | `--model {liteisp,rawnet} --teacher PATH --finetune PATH --epochs N` writes `runs/<name>/best.pt` |
 | W4 | `isp/hybrid/pipeline.py` | `HybridISP(backend)` with `name="hybrid"`; backend is a `.pt` or `.onnx` path |
 | W4 | `isp/hybrid/controller.py` | `AdaptiveController.decide(noise_a, noise_b, exposure, megapixels) -> dict` |
 | W4 | `isp/optim/` | `quantize_int8(onnx_in, onnx_out, calib)`, `prune_sweep(ckpt, ratios)`, `export_onnx(ckpt, out)` |
 | W4 | `scripts/benchmark.py` | writes `results/benchmark.json` |
 | W5 | `isp/eval/metrics.py` | `psnr`, `ssim`, `delta_e2000`, `lpips_alex`, each `(pred, target) -> float` |
-| W5 | `scripts/evaluate.py`, `robustness.py`, `ablation.py` | write `results/*.json`, `results/*.png`, `eval_P2_T??.md` |
+| W5 | `scripts/evaluate.py`, `robustness.py`, `ablation.py` | write `results/*.json`, `results/*.png`, `eval_P2_<TeamID>.md` via `--team-id` (default `TXX`) |
 | W6 | `app/app.py` | Gradio app; `Dockerfile`, `Makefile`, `docs/*` |
 
 ## Waves
