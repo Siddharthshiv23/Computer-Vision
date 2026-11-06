@@ -29,7 +29,10 @@ def load_checkpoint(path, expect: str | None = None) -> tuple[nn.Module, dict]:
     """Returns (eval-mode model on CPU, metadata). Raises InputError for missing/incompatible files."""
     if not Path(path).is_file():
         raise InputError(f"Model file not found: {path}")
-    meta = torch.load(path, map_location="cpu", weights_only=False)
+    try:  # weights_only: the file holds only tensors and plain numbers, so never unpickle code
+        meta = torch.load(path, map_location="cpu", weights_only=True)
+    except Exception as exc:
+        raise InputError(f"Could not read model file {path}: it is corrupt or not a safe checkpoint.") from exc
     if expect and meta.get("model") != expect:
         raise InputError(f"Expected a {expect} checkpoint but {path} holds {meta.get('model')!r}.")
     model = build_model(meta["model"], meta["width"])
