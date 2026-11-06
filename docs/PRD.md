@@ -4,7 +4,7 @@
 |---|---|
 | **Problem ID** | P2 — Intelligent and Computationally Efficient Smartphone ISP |
 | **Team ID** | `T??` *(to be filled)* |
-| **Repo** | `cv-hackathon` |
+| **Repo** | `Computer-Vision` |
 | **Status** | v1.0 — drives all implementation; every feature below has an ID that code, issues and docs refer to |
 | **Last updated** | 2026-11-06 |
 
