@@ -48,6 +48,7 @@ def parse_args(argv=None) -> argparse.Namespace:
     p.add_argument("--device", default="auto")
     p.add_argument("--no-amp", action="store_true")
     p.add_argument("--workers", type=int, default=0)
+    p.add_argument("--repeats", type=int, default=1, help="crops per training image per epoch")
     p.add_argument("--max-steps", type=int, default=None, help="cap training steps per epoch")
     p.add_argument("--runs-dir", default="runs")
     args = p.parse_args(argv)
@@ -89,11 +90,24 @@ def collate(batch, model_name: str, front_end):
     return torch.stack(xs), torch.stack(ys)
 
 
-def make_loader(ds, args, front_end, shuffle: bool, epoch: int = 0):
+def epoch_dataset(ds, repeats: int):
+    """One pass is only 294 crops, so worker start-up would dominate; a crop is random on every read."""
+    return torch.utils.data.ConcatDataset([ds] * repeats) if repeats > 1 else ds
+
+
+def _one_thread_per_worker(_worker: int) -> None:
+    import cv2
+
+    cv2.setNumThreads(1)  # workers already run in parallel; nested threads only fight over cores
+
+
+def make_loader(ds, args, front_end, shuffle: bool, epoch: int = 0, workers: int | None = None):
     gen = torch.Generator().manual_seed(args.seed * 1000 + epoch)
+    workers = args.workers if workers is None else workers
     fn = functools.partial(collate, model_name=args.model, front_end=front_end)
     return torch.utils.data.DataLoader(ds, args.batch_size, shuffle=shuffle and hasattr(ds, "__len__"),
-                                       collate_fn=fn, num_workers=args.workers, generator=gen)
+                                       collate_fn=fn, num_workers=workers, generator=gen,
+                                       worker_init_fn=_one_thread_per_worker if workers else None)
 
 
 def lr_at(args, epoch: int) -> float:
@@ -184,8 +198,9 @@ def main(argv=None, dataset_factory=default_dataset_factory, front_end=None) -> 
     run_dir = Path(args.runs_dir) / args.name
     run_dir.mkdir(parents=True, exist_ok=True)
     start, best = load_state(args, model, opt, scaler, run_dir, device)
-    train_ds = dataset_factory("train", args.crop, args.seed)
-    val_loader = make_loader(dataset_factory("val", args.crop, args.seed), args, front_end, shuffle=False)
+    train_ds = epoch_dataset(dataset_factory("train", args.crop, args.seed), args.repeats)
+    # 18 crops: starting worker processes would cost far more than the validation itself
+    val_loader = make_loader(dataset_factory("val", args.crop, args.seed), args, front_end, shuffle=False, workers=0)
     for epoch in range(start, args.epochs):
         t0 = time.time()
         lr = lr_at(args, epoch)

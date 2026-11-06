@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import ctypes
+import os
 import subprocess
 import sys
 import time
@@ -31,21 +32,24 @@ def stages(args) -> list[list[str]]:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--teacher-epochs", type=int, default=600)
-    p.add_argument("--student-epochs", type=int, default=800)
-    p.add_argument("--rawnet-epochs", type=int, default=600)
+    p.add_argument("--teacher-epochs", type=int, default=38)
+    p.add_argument("--student-epochs", type=int, default=58)
+    p.add_argument("--rawnet-epochs", type=int, default=40)
     p.add_argument("--teacher-width", type=int, default=56)
-    p.add_argument("--workers", type=int, default=4)
+    p.add_argument("--workers", type=int, default=8)  # measured: 12 is slower than 8 on this 16-thread CPU
+    p.add_argument("--repeats", type=int, default=32)
     p.add_argument("--runs-dir", default="runs")
     args = p.parse_args()
     keep_awake()
+    env = {**os.environ, "OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1"}
     for stage in stages(args):
         name = stage[stage.index("--name") + 1]
-        cmd = [sys.executable, "-m", "scripts.train", *stage, "--workers", str(args.workers), "--runs-dir", args.runs_dir]
+        cmd = [sys.executable, "-m", "scripts.train", *stage, "--workers", str(args.workers),
+               "--repeats", str(args.repeats), "--runs-dir", args.runs_dir]
         if (Path(args.runs_dir) / name / "last.pt").is_file():
             cmd.append("--resume")
         print(f"[{time.strftime('%H:%M:%S')}] start {name}: {' '.join(cmd[1:])}", flush=True)
-        code = subprocess.call(cmd)
+        code = subprocess.call(cmd, env=env)
         print(f"[{time.strftime('%H:%M:%S')}] end {name}: exit {code}", flush=True)
         if code:
             sys.exit(code)

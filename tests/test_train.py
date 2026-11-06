@@ -111,3 +111,15 @@ def test_training_front_end_matches_the_hybrid_statistics_path():
     """HybridISP uses fast_stats; training on anything else feeds the network a different input."""
     pytest.importorskip("isp.classical.pipeline")
     assert train.default_front_end().keywords["config"].fast_stats is True
+
+
+def test_repeats_gives_more_crops_per_epoch_without_touching_validation():
+    class Crops:
+        def __len__(self):
+            return 5
+
+        def __getitem__(self, i):
+            return i
+
+    assert len(train.epoch_dataset(Crops(), 4)) == 20
+    assert len(train.epoch_dataset(Crops(), 1)) == 5
