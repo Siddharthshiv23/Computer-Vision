@@ -147,7 +147,7 @@ The synthetic sensor model is unprocessing (Brooks et al., 2019). It uses random
 | M1 | Classical ISP baseline | Runs end-to-end on DNG and synthetic RAW; stage visualisation; tests pass |
 | M2 | Learned-only and hybrid models trained (CPU-sized) | Val PSNR hybrid > classical |
 | M3 | Optimisation | KD student, INT8 ONNX, pruning sweep, benchmark table |
-| M4 | Evaluation | Test table, robustness curves, ablation, ≥ 3 failure cases, `eval_P2_T??.md` |
+| M4 | Evaluation | Test table, robustness curves, ablation, ≥ 3 failure cases, `eval_P2_<TeamID>.md` |
 | M5 | App and deployment | Public URL on HF Spaces; Dockerfile; phone check |
 | M6 | Docs and demo | Design doc, architecture diagram, README reproduction, demo script, viva prep |
 

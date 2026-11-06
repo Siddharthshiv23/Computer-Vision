@@ -2,11 +2,14 @@
 __pycache__/
 *.pyc
 .pytest_cache/
-data/
-runs/
+/data/
+/runs/
 *.pt
 *.pth
 .env
 .env.*
 *.token
 .DS_Store
+.claude/
+.claude-flow/
+/.tmp/
