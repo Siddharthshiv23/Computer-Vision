@@ -72,9 +72,9 @@ def default_dataset_factory(split: str, crop: int, seed: int):
 
 
 def default_front_end():
-    from isp.classical.pipeline import front_end  # W1 contract; only liteisp needs it
+    from isp.classical.pipeline import ClassicalConfig, front_end  # only liteisp needs it
 
-    return front_end
+    return functools.partial(front_end, config=ClassicalConfig(fast_stats=True))  # same path as HybridISP
 
 
 def collate(batch, model_name: str, front_end):

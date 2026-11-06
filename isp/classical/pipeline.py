@@ -23,12 +23,13 @@ class ClassicalConfig:
     """Switches used by the ablations. Defaults are the full classical baseline."""
 
     demosaic: str = "malvar"          # bilinear | malvar | opencv_ea
-    awb: str = "fusion"               # gray_world | shades_of_gray | gray_edge | white_patch | fusion | metadata
+    awb: str = "metadata"             # as-shot gains when the file has them, else fusion; or a named estimator
     denoise: bool = True              # RAW-domain VST + guided filter
     denoise_strength: float = 1.0
     post_denoise: str = "none"        # none | luma_chroma | bilateral | nlm (on the sRGB output)
-    gamma: str = "srgb"               # srgb | gamma22
-    s_curve: float = 0.25
+    gamma: str = "gamma22"            # srgb | gamma22; with s_curve 1.0 this inverts the reference rendering
+    s_curve: float = 1.0
+    ae_key: float = 0.15              # median log-average luminance of the training images, in linear light
     clahe_clip: float = 0.0           # 0 disables CLAHE
     sharpen: float = 0.6
     ccm: bool = True                  # False skips the colour matrix (ablation: camera RGB goes on unchanged)
@@ -109,7 +110,7 @@ def _front_end(raw: RawImage, denoise: bool, cfg: ClassicalConfig, timings: dict
         lin = apply_ccm(lin, resolve_ccm(raw.ccm))
     stages["ccm"] = srgb_encode(lin)
     lap("ccm")
-    lin, gain = auto_exposure(lin)
+    lin, gain = auto_exposure(lin, target=cfg.ae_key)
     stages["exposure"] = srgb_encode(lin)
     lap("exposure")
     out = (gamma22 if cfg.gamma == "gamma22" else srgb_gamma)(lin)

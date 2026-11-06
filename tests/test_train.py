@@ -105,3 +105,9 @@ def test_default_front_end_is_the_real_classical_function():
     """The fakes above cannot catch a wrong name, so resolve the real one when W1's code is present."""
     pytest.importorskip("isp.classical.pipeline")
     assert callable(train.default_front_end())
+
+
+def test_training_front_end_matches_the_hybrid_statistics_path():
+    """HybridISP uses fast_stats; training on anything else feeds the network a different input."""
+    pytest.importorskip("isp.classical.pipeline")
+    assert train.default_front_end().keywords["config"].fast_stats is True

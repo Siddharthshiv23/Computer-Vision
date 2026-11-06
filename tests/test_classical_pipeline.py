@@ -66,3 +66,26 @@ def test_noisy_dark_image_is_cleaner_with_denoise():
 def test_rejects_bad_input():
     with pytest.raises(InputError):
         ClassicalISP().run(RawImage(bayer=np.zeros((8, 8, 3), np.float32)))
+
+
+def test_default_tone_inverts_the_reference_rendering():
+    """The baseline must render like the targets, or it loses PSNR to a tone choice and not to its image quality."""
+    from isp.classical.pipeline import ClassicalConfig
+    from isp.classical.tone import gamma22, s_curve
+
+    x = np.linspace(0.02, 0.98, 49, dtype=np.float32)
+    lin = (0.5 - np.sin(np.arcsin(1.0 - 2.0 * x) / 3.0)) ** 2.2  # the unprocessing in isp.data.synthetic
+    cfg = ClassicalConfig()
+    assert cfg.gamma == "gamma22"
+    assert np.abs(s_curve(gamma22(lin), cfg.s_curve) - x).max() < 1e-3
+
+
+def test_as_shot_white_balance_is_used_when_the_file_has_it():
+    from isp.classical.pipeline import ClassicalConfig, _estimate_gains
+    from isp.types import RawImage
+
+    rgb = np.random.default_rng(0).random((32, 32, 3)).astype(np.float32)
+    shot = RawImage(bayer=np.zeros((32, 32), np.float32), wb_gains=np.array([2.0, 1.0, 1.5], np.float32))
+    assert np.allclose(_estimate_gains(rgb, shot, ClassicalConfig().awb), [2.0, 1.0, 1.5])
+    blind = RawImage(bayer=np.zeros((32, 32), np.float32))
+    assert np.isfinite(_estimate_gains(rgb, blind, ClassicalConfig().awb)).all()
