@@ -1,0 +1,36 @@
+# Fixed test conditions for Kodak24. Inputs to the evaluation, not results.
+# Each axis level holds isp.data.synthetic.SensorCondition fields; base + one level per axis
+# makes a full condition. `standard` is the condition behind the headline table and PRD targets.
+seed: 20261106
+
+base:
+  # Camera RGB -> linear sRGB, rows sum to 1.
+  ccm:
+    - [1.70, -0.60, -0.10]
+    - [-0.20, 1.50, -0.30]
+    - [0.00, -0.50, 1.50]
+
+standard:
+  iso: iso_400
+  ev: ev_0
+  cast: neutral
+
+axes:
+  # Poisson-Gaussian variance = iso_a * x + iso_b. ISO labels are nominal: iso_a scales with ISO
+  # and iso_b follows the shot/read relation of Brooks et al. (2019), ln b = 2.18 ln a + 1.2.
+  iso:
+    iso_100: {iso_a: 0.00025, iso_b: 4.7e-8}
+    iso_400: {iso_a: 0.001, iso_b: 9.6e-7}
+    iso_1600: {iso_a: 0.004, iso_b: 1.96e-5}
+    iso_6400: {iso_a: 0.016, iso_b: 4.0e-4}
+  ev:
+    ev_0: {ev: 0.0}
+    ev_-1: {ev: -1.0}
+    ev_-2: {ev: -2.0}
+    ev_-3: {ev: -3.0}
+  # Illuminant as (r, g, b) multipliers on the scene before mosaicing.
+  cast:
+    neutral: {illuminant: [1.0, 1.0, 1.0]}
+    warm: {illuminant: [1.3, 1.0, 0.75]}
+    cool: {illuminant: [0.75, 1.0, 1.3]}
+    green: {illuminant: [0.85, 1.2, 0.85]}
