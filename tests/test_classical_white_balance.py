@@ -43,3 +43,11 @@ def test_fuse_ignores_clipped_white_patch():
 def test_apply_gains_clips():
     out = apply_gains(np.full((2, 2, 3), 0.9, np.float32), np.array([2, 1, 1], np.float32))
     assert out.max() <= 1.0
+
+
+def test_gains_are_bounded_when_one_channel_is_nearly_empty():
+    """A near-zero channel must not produce a huge gain that blows up noise and colour."""
+    rgb = np.broadcast_to(np.array([0.5, 0.3, 2e-5], np.float32), (32, 32, 3)).copy()
+    for gains in (gray_world(rgb), fuse_awb(rgb)):
+        assert np.isfinite(gains).all() and gains.max() <= 8.0 and gains.min() >= 0.25
+        assert gains[1] == 1.0

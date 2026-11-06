@@ -10,6 +10,7 @@ import numpy as np
 
 _EPS = 1e-6
 _SAT = 0.98  # pixels above this are treated as clipped and ignored
+_GAIN_MIN, _GAIN_MAX = 0.25, 8.0  # no real illuminant needs more; beyond this a channel is just empty
 
 
 def _gains(illum: np.ndarray) -> np.ndarray:
@@ -17,7 +18,7 @@ def _gains(illum: np.ndarray) -> np.ndarray:
     illum = np.asarray(illum, np.float64)
     if not np.isfinite(illum).all() or illum.min() < _EPS:
         return np.ones(3, np.float32)
-    return (illum[1] / illum).astype(np.float32)
+    return np.clip(illum[1] / illum, _GAIN_MIN, _GAIN_MAX).astype(np.float32)
 
 
 def _valid(rgb: np.ndarray) -> np.ndarray:

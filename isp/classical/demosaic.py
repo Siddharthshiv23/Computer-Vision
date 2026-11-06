@@ -4,7 +4,7 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
-_B = cv2.BORDER_REFLECT
+_B = cv2.BORDER_REFLECT_101  # keeps the Bayer phase: plain REFLECT repeats the edge and reads the wrong colour
 
 
 def _masks(h: int, w: int) -> np.ndarray:

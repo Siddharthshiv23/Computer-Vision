@@ -52,3 +52,14 @@ def test_black_and_white_frames_finite():
     for v in (0.0, 1.0):
         out = demosaic_malvar(np.full((8, 8), v, np.float32))
         assert np.isfinite(out).all() and out.min() >= 0 and out.max() <= 1
+
+
+@pytest.mark.parametrize("fn", [demosaic_bilinear, demosaic_malvar, demosaic_opencv_ea])
+def test_flat_colour_exact_at_the_border(fn):
+    """Padding must keep the Bayer phase, or edge pixels read neighbours of the wrong colour."""
+    colour = np.array([0.8, 0.4, 0.2], np.float32)
+    rgb = np.broadcast_to(colour, (16, 16, 3)).copy()
+    out = fn(mosaic_rggb(rgb))
+    edge = np.concatenate([out[:2].reshape(-1, 3), out[-2:].reshape(-1, 3),
+                           out[:, :2].reshape(-1, 3), out[:, -2:].reshape(-1, 3)])
+    assert np.abs(edge - colour).max() < 1e-3
