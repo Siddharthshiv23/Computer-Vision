@@ -5,7 +5,6 @@ import dataclasses
 import io
 import logging
 import math
-import os
 import time
 import warnings
 from dataclasses import dataclass, field
@@ -57,14 +56,22 @@ class Report:
     outcomes: list[Outcome] = field(default_factory=list)
 
 
-def read_and_delete(path: str) -> bytes:
-    """Take an upload into memory and remove Gradio's temporary copy of it."""
+def read_and_delete(*paths: str | None) -> list[bytes | None]:
+    """Take uploads into memory and remove Gradio's temporary copies.
+
+    Reads everything before deleting anything: Gradio stores uploads by content
+    hash, so the same file picked twice arrives as one path.
+    """
     try:
-        data = Path(path).read_bytes()
-        os.unlink(path)
+        return [Path(p).read_bytes() if p else None for p in paths]
     except OSError:
         raise InputError("That upload is no longer available. Choose the file again.") from None
-    return data
+    finally:
+        for path in filter(None, paths):
+            try:
+                Path(path).unlink(missing_ok=True)
+            except OSError:
+                log.warning("could not delete an upload; the cache sweep will remove it")
 
 
 def _downscale_mosaic(bayer: np.ndarray, plane_size: tuple[int, int]) -> np.ndarray:
@@ -208,7 +215,7 @@ def develop(
         outcomes=[Outcome(s.name, s.label, "waiting" if s.pipeline else "unavailable", s.reason) for s in slots]
     )
     try:
-        data, ref_data = (read_and_delete(p) if p else None for p in (upload_path, reference_path))
+        data, ref_data = read_and_delete(upload_path, reference_path)
         if data is None:
             raise InputError("Choose an image first.")
         report.filename = Path(upload_path).name

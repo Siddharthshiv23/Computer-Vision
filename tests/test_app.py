@@ -213,13 +213,29 @@ def test_non_finite_mosaic_is_rejected():
 
 def test_upload_is_deleted_after_reading(tmp_path):
     path = upload(tmp_path, b"abc")
-    assert processing.read_and_delete(path) == b"abc"
+    assert processing.read_and_delete(path, None) == [b"abc", None]
     assert list(tmp_path.iterdir()) == []
 
 
 def test_vanished_upload_asks_for_a_new_upload(tmp_path):
     with pytest.raises(InputError, match="again"):
-        processing.read_and_delete(str(tmp_path / "gone.jpg"))
+        processing.read_and_delete(str(tmp_path / "gone.jpg"), None)
+
+
+def test_same_file_as_photo_and_reference_is_read_for_both(tmp_path):
+    """Gradio stores uploads by content hash, so identical files share one path."""
+    path = upload(tmp_path, encode("RGB", (64, 64)), "same.png")
+    report = final(path, [slot(Echo())], metrics=METRICS, ref=path)
+    assert report.error == ""
+    assert report.outcomes[0].metrics
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_second_upload_is_deleted_when_the_first_has_vanished(tmp_path):
+    ref = upload(tmp_path, b"x", "ref.png")
+    report = final(str(tmp_path / "gone.jpg"), [slot(Echo())], ref=ref)
+    assert "again" in report.error
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_both_uploads_are_deleted_even_when_the_image_is_rejected(tmp_path):
@@ -487,6 +503,14 @@ def test_results_page_shows_images_stages_latency_and_preview_note(tmp_path):
     page = render.page(report)
     assert page.count("data:image/jpeg;base64,") == 3  # result + two stages
     assert "demosaic" in page and "tone" in page and "1632" in page
+
+
+def test_a_pipelines_own_total_is_not_drawn_as_a_stage(tmp_path):
+    report = final(upload(tmp_path), [slot(Echo())])
+    report.outcomes[0].timings_ms["total"] = 9000.0
+    page = render.page(report)
+    assert page.count('class="isp-bar"') == 2
+    assert "9,000 ms" not in page
 
 
 def test_metrics_table_shows_only_measured_values(tmp_path):

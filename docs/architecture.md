@@ -9,6 +9,26 @@ python scripts/gen_architecture.py
 Solid arrows are Python imports. Dashed arrows are modules the app loads by name through `app/adapter.py`, so that it can start while a pipeline is missing. A module that has not landed does not appear.
 
 <!-- BEGIN GENERATED ARCHITECTURE -->
+```mermaid
+flowchart LR
+    subgraph app["app"]
+        app_adapter["adapter"]
+        app_app["app"]
+        app_processing["processing"]
+        app_render["render"]
+    end
+    subgraph isp["isp"]
+        isp_types["types"]
+    end
+    app_adapter --> isp_types
+    app_app --> app_adapter
+    app_app --> app_processing
+    app_app --> app_render
+    app_processing --> app_adapter
+    app_processing --> isp_types
+    app_render --> app_adapter
+    app_render --> app_processing
+```
 <!-- END GENERATED ARCHITECTURE -->
 
 ## Data contract

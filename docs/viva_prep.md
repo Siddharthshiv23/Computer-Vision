@@ -65,7 +65,7 @@ Every member must be able to explain their own part, the model, the classical ch
 ## W6 App and docs
 
 - Why does the app import pipelines through one adapter? The interface can run before every pipeline lands, and anything missing is reported instead of faked.
-- Are uploads stored? Gradio spools an upload to a temporary file, the app reads it into memory and deletes it at once, and results go to the browser inline.
+- Are uploads stored? Gradio spools an upload to a temporary file, the app reads it into memory and deletes it at once, and results go to the browser inline. Files uploaded but never developed go in a cache sweep.
 - How do you downscale a mosaic without destroying it? Split the four Bayer planes, area-resample each, and interleave them again, so the RGGB phase survives.
 - Why does the Docker image not contain CUDA? Torch comes from the CPU wheel index, and `requirements.txt` has no torch dependency.
 - How does the architecture diagram stay true? `scripts/gen_architecture.py` builds it from the modules and imports in the repo.

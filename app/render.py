@@ -118,11 +118,13 @@ def _quality(report: Report, done: list[Outcome]) -> str:
 def _latency(done: list[Outcome]) -> str:
     columns = ""
     for outcome in done:
-        peak = max(outcome.timings_ms.values(), default=0) or 1
+        # The heading already carries the measured total, so a pipeline's own "total" is not a stage.
+        timings = {name: ms for name, ms in outcome.timings_ms.items() if name != "total"}
+        peak = max(timings.values(), default=0) or 1
         items = "".join(
             f'<li><div class="isp-row"><span>{escape(str(name))}</span><span>{_ms(ms)}</span></div>'
             f'<div class="isp-bar" style="width:{ms / peak * 100:.1f}%"></div></li>'
-            for name, ms in outcome.timings_ms.items()
+            for name, ms in timings.items()
         )
         stages = f"<ol>{items}</ol>" if items else '<p class="isp-soft">This pipeline reported no stage timings.</p>'
         columns += f"<div><h3>{escape(outcome.label)}: {_ms(outcome.total_ms)}</h3>{stages}</div>"

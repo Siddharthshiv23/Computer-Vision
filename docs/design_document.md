@@ -1,6 +1,6 @@
 # Design document: Hybrid Smartphone ISP (P2)
 
-**Team ID:** `T??` | **Members and USNs:** TBD | **Status:** skeleton. Every `TBD-from-results` marker is replaced by a measured value from `results/`, never by an estimate.
+**Team ID:** `TXX` | **Members and USNs:** TBD | **Status:** skeleton. Every `TBD-from-results` marker is replaced by a measured value from `results/`, never by an estimate.
 
 > **Assumption about structure.** The organisers provided no design-document template, so this file uses a standard engineering structure: problem, requirements, design, data, evaluation, limitations, ethics. If a template appears, map these sections onto it. See open question 3 in [PRD.md](PRD.md).
 
@@ -138,7 +138,7 @@ Gradio app in `app/`. The UI depends on the pipelines through one adapter, `app/
 ## 12. Ethics
 
 - Datasets are public research benchmarks. No faces or personal data are collected.
-- Uploaded images are processed in memory and are not stored. Gradio spools an upload to a temporary file on arrival, so the app reads it into memory and deletes that file immediately. Results go to the browser inline and are never written to disk.
+- Uploaded images are processed in memory and are not stored. Gradio spools an upload to a temporary file on arrival, so the app reads it into memory and deletes that file immediately. A file uploaded but never developed is removed by a cache sweep within about 20 minutes. Results go to the browser inline and are never written to disk.
 - A reference rendering encodes an aesthetic preference, so a colour-accuracy score should not be read as objective truth.
 - Learned restoration can invent plausible detail. Outputs are not suitable as evidence of what a scene contained.
 

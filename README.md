@@ -8,7 +8,7 @@ app_port: 7860
 
 CV Hackathon 2026, Problem P2. A camera pipeline that turns noisy Bayer RAW into sRGB by combining classical stages with a small learned restoration network, compared against a classical baseline and an end-to-end network.
 
-**Team ID:** `T??` | **Live demo:** TBD-from-deployment | **Spec:** [docs/PRD.md](docs/PRD.md)
+**Team ID:** `TXX` | **Live demo:** TBD-from-deployment | **Spec:** [docs/PRD.md](docs/PRD.md)
 
 ## Results
 
@@ -45,7 +45,7 @@ docker build -t hybrid-isp .
 docker run --rm -p 7860:7860 hybrid-isp
 ```
 
-The image installs CPU-only torch and contains no secrets. Weights are read from `weights/`; set `ISP_LEARNED_WEIGHTS` or `ISP_HYBRID_WEIGHTS` to use other paths.
+The image installs CPU-only torch and contains no secrets. ONNX weights are read from `weights/`; set `ISP_LEARNED_WEIGHTS` or `ISP_HYBRID_WEIGHTS` to use other paths.
 
 ## Reproduce the results
 
@@ -57,13 +57,13 @@ python scripts/download_data.py
 python scripts/train.py --model liteisp --epochs N
 python scripts/train.py --model rawnet --epochs N
 python scripts/train.py --model liteisp --teacher runs/<teacher>/best.pt --epochs N
-python scripts/evaluate.py
+python scripts/evaluate.py --team-id TXX
 python scripts/robustness.py
 python scripts/ablation.py
 python scripts/benchmark.py
 ```
 
-Epoch counts and run names used for the reported numbers: TBD-from-results.
+`evaluate.py` writes `results/*.json`, `results/*.png` and `eval_P2_<TeamID>.md`. Epoch counts and run names used for the reported numbers: TBD-from-results.
 
 ## Repository layout
 
@@ -81,6 +81,6 @@ Epoch counts and run names used for the reported numbers: TBD-from-results.
 - Synthetic RAW does not capture every real-sensor effect, such as fixed-pattern noise, lens shading and crosstalk. Real-RAW results are reported separately and are not over-claimed.
 - Colour accuracy is measured against a reference rendering, which is itself an aesthetic choice.
 - Datasets are public research benchmarks, and no faces or personal data are collected.
-- Uploads are processed in memory and not stored. Gradio spools each upload to a temporary file, which the app deletes as soon as it has read it.
+- Uploads are processed in memory and not stored. Gradio spools each upload to a temporary file, which the app deletes as soon as it has read it. A file that is uploaded but never developed is removed by a cache sweep within about 20 minutes.
 
 More in the [design document](docs/design_document.md), sections 11 and 12.

@@ -8,7 +8,7 @@ Rehearse with a stopwatch. Say only numbers that appear in `results/`, and repla
 
 - Open the live URL on a laptop and on a phone. Free hosting sleeps, so load the page at least two minutes early.
 - Keep three inputs ready: a noisy low-light RAW (`.dng`), an ordinary JPEG, and a Kodak-free image with a matching reference for the metrics table.
-- Keep `eval_P2_T??.md` and the robustness plot open in another tab.
+- Keep `eval_P2_<TeamID>.md` and the robustness plot open in another tab.
 
 ## Timeline
 

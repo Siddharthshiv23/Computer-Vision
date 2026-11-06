@@ -15,7 +15,7 @@
 }
 
 .gradio-container { max-width: 1240px !important; margin: 0 auto; }
-footer { display: none !important; }
+.gradio-container .html-container { padding: 0 !important; }
 
 .isp-band { height: 24px; background: var(--isp-cfa) 0 0 / 12px 12px; margin: 0 0 20px; }
 .isp-head h1 { font-size: clamp(2rem, 6vw, 3.25rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; margin: 0 0 8px; color: var(--isp-ink); }
@@ -55,8 +55,9 @@ footer { display: none !important; }
 .isp-crop figcaption { padding: 4px 0 0; color: var(--isp-ink-soft); }
 
 .isp-scroll { overflow-x: auto; }
+.isp-table, .isp-table thead, .isp-table tbody, .isp-table tr { border: 0 !important; }
 .isp-table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
-.isp-table th, .isp-table td { text-align: right; padding: 8px 12px; border-bottom: 1px solid var(--isp-line); color: var(--isp-ink); background: transparent; }
+.isp-table th, .isp-table td { text-align: right; padding: 8px 12px; border: 0 !important; border-bottom: 1px solid var(--isp-line) !important; color: var(--isp-ink); background: transparent; }
 .isp-table th { font-weight: 600; }
 .isp-table th:first-child, .isp-table td:first-child { text-align: left; padding-left: 0; }
 .isp-table .isp-best { font-weight: 700; }

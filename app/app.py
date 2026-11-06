@@ -116,15 +116,15 @@ def build_demo() -> gr.Blocks:
         analytics_enabled=False,
         delete_cache=(600, 600),  # backstop for uploads that are never developed
     ) as demo:
-        gr.HTML(HEADER)
+        gr.HTML(HEADER, padding=False)
         with gr.Row(equal_height=True):
             upload = gr.File(label="Photo: RAW (DNG) or JPEG", file_count="single", type="filepath", height=170)
             reference = gr.File(
                 label="Reference image, optional, enables scores", file_count="single", type="filepath", height=170
             )
         button = gr.Button("Develop image", variant="primary", size="lg")
-        gr.HTML(PRIVACY)
-        results = gr.HTML(render.idle(_slots()))
+        gr.HTML(PRIVACY, padding=False)
+        results = gr.HTML(render.idle(_slots()), padding=False)
         button.click(
             _develop,
             [upload, reference],
