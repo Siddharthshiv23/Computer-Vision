@@ -1,0 +1,12 @@
+# Runtime for the app and CPU inference, pinned to the versions the project is tested on.
+# Deliberately no torch here: the app image adds CPU-only torch from requirements-torch-cpu.txt.
+gradio==6.31.0
+imageio==2.38.1
+numpy==2.4.6
+onnxruntime==1.31.1
+opencv-python-headless==5.0.0.93
+pillow==12.3.0
+pyyaml==6.0.3
+rawpy==0.28.0
+scikit-image==0.26.0
+scipy==1.17.1

@@ -1,0 +1,91 @@
+/* A neutral grey surround, as in a colour-grading suite: the page adds no tint,
+   so any colour you see belongs to the image. The only hue is the Bayer band. */
+:root {
+  --isp-surface: #2b2b2b;
+  --isp-raised: #363636;
+  --isp-line: #565656;
+  --isp-ink: #f1f1f1;
+  --isp-ink-soft: #c4c4c4;
+  --isp-alert: #ffc2b8;
+  --isp-red: #d9483b;
+  --isp-green: #3aa655;
+  --isp-blue: #3b6fd9;
+  /* One RGGB cell. Conic quadrants run top-right, bottom-right, bottom-left, top-left. */
+  --isp-cfa: conic-gradient(var(--isp-green) 0 25%, var(--isp-blue) 0 50%, var(--isp-green) 0 75%, var(--isp-red) 0);
+}
+
+.gradio-container { max-width: 1240px !important; margin: 0 auto; }
+footer { display: none !important; }
+
+.isp-band { height: 24px; background: var(--isp-cfa) 0 0 / 12px 12px; margin: 0 0 20px; }
+.isp-head h1 { font-size: clamp(2rem, 6vw, 3.25rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; margin: 0 0 8px; color: var(--isp-ink); }
+.isp-head p { font-size: 1.0625rem; line-height: 1.5; color: var(--isp-ink-soft); margin: 0; max-width: 62ch; }
+
+.isp-out { color: var(--isp-ink); font-size: 1rem; line-height: 1.5; }
+.isp-out h2 { font-size: 1.375rem; font-weight: 600; margin: 40px 0 4px; color: var(--isp-ink); }
+.isp-out h3 { font-size: 1.0625rem; font-weight: 600; margin: 0; color: var(--isp-ink); }
+.isp-out p { margin: 0 0 12px; }
+.isp-soft { color: var(--isp-ink-soft); }
+
+.isp-status { min-height: 1.5em; color: var(--isp-ink-soft); margin: 4px 0 12px; }
+.isp-alert { border-left: 4px solid var(--isp-alert); padding: 12px 16px; background: var(--isp-raised); margin: 4px 0 16px; }
+.isp-alert strong { display: block; color: var(--isp-alert); font-weight: 600; }
+
+/* Side by side wherever three images can stay useful; stacked on a phone. */
+.isp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.isp-shot { margin: 0; min-width: 0; }
+.isp-shot figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 0 0 6px; }
+.isp-shot img { display: block; width: 100%; height: auto; cursor: crosshair; }
+.isp-time { color: var(--isp-ink-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.isp-flag { color: var(--isp-alert); font-size: 0.9375rem; margin: 6px 0 0; }
+
+.isp-empty { aspect-ratio: 4 / 3; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 16px; border: 1px dashed var(--isp-line); color: var(--isp-ink-soft); overflow-wrap: anywhere; }
+.isp-empty strong { color: var(--isp-ink); font-weight: 600; }
+.isp-empty.isp-failed { border: 1px solid var(--isp-alert); }
+
+/* While a pipeline runs, its slot shows the mosaic it is working from. */
+.isp-empty.isp-running { position: relative; border-style: solid; overflow: hidden; }
+.isp-running::before { content: ""; position: absolute; inset: 0; background: var(--isp-cfa) 0 0 / 12px 12px; opacity: 0.22; animation: isp-develop 1.6s ease-in-out infinite alternate; }
+.isp-running > * { position: relative; }
+@keyframes isp-develop { to { opacity: 0.08; } }
+
+.isp-crops { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.isp-crop { margin: 0; min-width: 0; }
+.isp-crop div { aspect-ratio: 1; background: var(--isp-raised) no-repeat; }
+.isp-crop figcaption { padding: 4px 0 0; color: var(--isp-ink-soft); }
+
+.isp-scroll { overflow-x: auto; }
+.isp-table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.isp-table th, .isp-table td { text-align: right; padding: 8px 12px; border-bottom: 1px solid var(--isp-line); color: var(--isp-ink); background: transparent; }
+.isp-table th { font-weight: 600; }
+.isp-table th:first-child, .isp-table td:first-child { text-align: left; padding-left: 0; }
+.isp-table .isp-best { font-weight: 700; }
+
+.isp-lat { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.isp-lat ol { list-style: none; margin: 8px 0 0; padding: 0; }
+.isp-lat li { margin: 0 0 8px; }
+.isp-lat .isp-row { display: flex; justify-content: space-between; gap: 8px; }
+.isp-lat .isp-row span:last-child { font-variant-numeric: tabular-nums; color: var(--isp-ink-soft); white-space: nowrap; }
+.isp-bar { height: 6px; background: var(--isp-ink-soft); min-width: 2px; }
+
+.isp-out details { border-top: 1px solid var(--isp-line); }
+.isp-out details:last-of-type { border-bottom: 1px solid var(--isp-line); }
+.isp-out summary { cursor: pointer; padding: 12px 0; min-height: 44px; font-weight: 600; box-sizing: border-box; }
+.isp-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; padding: 0 0 16px; }
+.isp-thumbs figure { margin: 0; min-width: 0; }
+.isp-thumbs img { display: block; width: 100%; height: auto; }
+.isp-thumbs figcaption { padding: 4px 0 0; color: var(--isp-ink-soft); display: flex; justify-content: space-between; gap: 8px; overflow-wrap: anywhere; }
+
+.isp-privacy { color: var(--isp-ink-soft); margin: 8px 0 0; font-size: 0.9375rem; }
+
+.isp-out :focus-visible, .gradio-container button:focus-visible { outline: 2px solid var(--isp-ink); outline-offset: 2px; }
+
+@media (max-width: 720px) {
+  .isp-grid, .isp-lat { grid-template-columns: minmax(0, 1fr); }
+  .isp-crops { gap: 6px; }
+  .isp-out h2 { margin-top: 32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .isp-running::before { animation: none; }
+}
