@@ -138,7 +138,7 @@ Gradio app in `app/`. The UI depends on the pipelines through one adapter, `app/
 ## 12. Ethics
 
 - Datasets are public research benchmarks. No faces or personal data are collected.
-- Uploaded images are processed in memory and are not stored. Gradio spools an upload to a temporary file on arrival, so the app reads it into memory and deletes that file immediately. A file uploaded but never developed is removed by a cache sweep within about 20 minutes. Results go to the browser inline and are never written to disk.
+- Uploaded images are not kept. Gradio spools an upload to a temporary file on arrival, so the app reads it into memory and deletes that file immediately. A file uploaded but never developed is removed by a cache sweep within about 20 minutes. Results go to the browser inline and are never written to disk.
 - A reference rendering encodes an aesthetic preference, so a colour-accuracy score should not be read as objective truth.
 - Learned restoration can invent plausible detail. Outputs are not suitable as evidence of what a scene contained.
 

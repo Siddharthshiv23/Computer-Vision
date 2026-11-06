@@ -44,8 +44,8 @@ HEADER = """
 """
 
 PRIVACY = (
-    '<p class="isp-privacy">Your files are processed in memory. Each upload is deleted from the server '
-    "as soon as it has been read, and results are not saved.</p>"
+    '<p class="isp-privacy">Each upload is held in a temporary file only until it has been read, then deleted. '
+    "An upload you never process is cleared within about 20 minutes. Results are not saved.</p>"
 )
 
 

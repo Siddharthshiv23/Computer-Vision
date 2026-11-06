@@ -81,6 +81,6 @@ python scripts/benchmark.py
 - Synthetic RAW does not capture every real-sensor effect, such as fixed-pattern noise, lens shading and crosstalk. Real-RAW results are reported separately and are not over-claimed.
 - Colour accuracy is measured against a reference rendering, which is itself an aesthetic choice.
 - Datasets are public research benchmarks, and no faces or personal data are collected.
-- Uploads are processed in memory and not stored. Gradio spools each upload to a temporary file, which the app deletes as soon as it has read it. A file that is uploaded but never developed is removed by a cache sweep within about 20 minutes.
+- Uploads are not kept. Gradio spools each upload to a temporary file, which the app deletes as soon as it has read it. A file that is uploaded but never developed is removed by a cache sweep within about 20 minutes.
 
 More in the [design document](docs/design_document.md), sections 11 and 12.
