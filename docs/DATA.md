@@ -25,6 +25,10 @@ SelfExSR has no licence file, and its README asks users to cite the paper. The o
 - 9 of the 294 training images have no colour (R = G = B), and one of those is stored as single-channel. They are kept, because the PRD fixes the set at 294, and are expanded to three channels on load.
 - A crop larger than an image is filled by reflecting its borders.
 
+## Split isolation
+
+Each dataset belongs to one split, and no file's SHA-256 appears in two splits (`tests/test_datasets.py`). A one-off search for near-duplicates across splits, over whole images and sampled patches, found none. The closest whole-image pair (`bsd100/img_053` and `kodim20`, correlation 0.848) only shares a sky-over-ground layout: one shows giraffes, the other an aircraft. That search sampled patches, so it is evidence rather than proof.
+
 ## Synthetic sensor model
 
 `isp/data/synthetic.py` follows Brooks et al. 2019, with three deliberate changes, listed at the top of that file. `sample_condition` deliberately covers every level in `configs/test_conditions.yaml`, including the neutral `[1, 1, 1]` illuminant, so the test conditions are not out of range for a trained model. For other workstreams:
