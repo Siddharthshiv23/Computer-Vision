@@ -29,7 +29,7 @@ class ClassicalConfig:
     post_denoise: str = "none"        # none | luma_chroma | bilateral | nlm (on the sRGB output)
     gamma: str = "gamma22"            # srgb | gamma22; with s_curve 1.0 this inverts the reference rendering
     s_curve: float = 1.0
-    ae_key: float = 0.15              # median log-average luminance of the training images, in linear light
+    ae_key: float = 0.15              # training images, rounded: median of auto_exposure's log-average luminance after undoing the render is 0.153
     clahe_clip: float = 0.0           # 0 disables CLAHE
     sharpen: float = 0.6
     ccm: bool = True                  # False skips the colour matrix (ablation: camera RGB goes on unchanged)
